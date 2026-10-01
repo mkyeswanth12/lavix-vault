@@ -1,0 +1,72 @@
+# Environment (safety net only: this stack reads no .env file)
+.env
+
+# Application configuration (template is committed, real values never)
+app/config/config.yml
+app/config/secrets/
+
+# Deployment signing keys (symlink to your key directory)
+secrets
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+venv/
+env/
+.venv/
+pip-wheel-metadata/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker volumes / local data
+data/
+uploads/
+
+# Node (if any frontend tooling)
+node_modules/
+webui/dist/
+
+# Test and tooling output
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+artifacts/
+.coverage
+coverage.xml
+
+# Runtime-generated CUGA/ingestion state
+.cuga/
+tmp/
+
+m-vault-public/
+open-webui/
+
+# Config
+lavix.toml
+
+# Runtime decryption keys must be supplied through Compose secrets.
+enc/unlock/*.pem
+enc/*.pem
+enc/neo4j_auth
+enc/public_4096.pem
+enc/unlock/

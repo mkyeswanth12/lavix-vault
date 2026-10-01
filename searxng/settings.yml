@@ -1,0 +1,114 @@
+# SearXNG settings for Lavix Vault web search
+# Documentation: https://docs.searxng.org/admin/settings/settings.html
+
+use_default_settings:
+  engines:
+    remove:
+      - ahmia
+      - torch
+      - wikidata
+      - google cse
+
+server:
+  # Dummy value: the real secret always arrives via the SEARXNG_SECRET
+  # environment variable, which the pinned image maps over this key
+  # (searx/settings_defaults.py: SettingsValue(str,
+  # environ_name='SEARXNG_SECRET')). Never put a real secret here.
+  secret_key: "replaced-by-SEARXNG_SECRET-env-at-runtime"
+  bind_address: "0.0.0.0:8080"
+  image_proxy: false
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  default_lang: "en"
+  formats:
+    - html
+    - json
+
+engines:
+  # DuckDuckGo: re-enabled — news engine works well, web may have intermittent CAPTCHA
+  - name: duckduckgo
+    engine: duckduckgo
+    disabled: false
+    timeout: 6.0
+
+  # Brave: disabled — 429 too many requests
+  - name: brave
+    engine: brave
+    disabled: true
+    timeout: 6.0
+
+  # Bing search backend (primary: only engine reliably passing vendor checks)
+  - name: bing
+    engine: bing
+    disabled: false
+    weight: 3
+    timeout: 6.0
+
+  # Bing News: general-news backend (engine module is bing_news).
+  - name: bing news
+    engine: bing_news
+    disabled: false
+    weight: 2
+    timeout: 6.0
+
+  # DuckDuckGo web/news and Startpage stay unrequested: both vendors are
+  # CAPTCHA-dead from this egress IP (no duckduckgo-news module exists
+  # upstream; duckduckgo_extra shares the same vendor wall).
+
+  # Startpage search backend
+  - name: startpage
+    engine: startpage
+    disabled: false
+    weight: 2
+    timeout: 6.0
+
+  # Yahoo: disabled — 403 rate-limited
+  - name: yahoo
+    engine: yahoo
+    disabled: true
+    timeout: 6.0
+
+  # Qwant: disabled — 403 rate-limited
+  - name: qwant
+    engine: qwant
+    disabled: true
+    timeout: 6.0
+
+  # Mojeek search backend
+  - name: mojeek
+    engine: mojeek
+    disabled: false
+    weight: 1
+    timeout: 6.0
+
+  # Mwmbl: community-index backend, verified live from this egress IP.
+  # Generous timeout: the community backend is slow and short timeouts
+  # surface as transport failures in the online processor.
+  - name: mwmbl
+    engine: mwmbl
+    disabled: false
+    weight: 1
+    timeout: 10.0
+
+  # Wikipedia: disabled 2026-09-14 — 403-walled then silent-empty (0 results
+  # even for "Albert Einstein") from this egress IP. Bing still returns
+  # wikipedia.org URLs, so reference coverage survives via bing. Re-enable
+  # when the vendor stops failing; keep the app fan-out in sync
+  # (app/services/web_search.py engine list + test_web_search_security).
+  - name: wikipedia
+    engine: wikipedia
+    disabled: true
+    weight: 1
+    timeout: 6.0
+
+  # Presearch: disabled — 403 rate-limited
+  - name: presearch
+    engine: presearch
+    disabled: true
+    timeout: 6.0
+
+ui:
+  default_theme: simple
+  query_in_title: false

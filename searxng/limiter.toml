@@ -1,0 +1,6 @@
+# SearXNG bot-detection / rate-limiting config
+# Disables rate limiting for internal trusted use.
+
+[botdetection.ip_limit]
+  filter_link_local = false
+  link_token = false

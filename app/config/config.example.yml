@@ -1,0 +1,151 @@
+# Lavix Vault — optional configuration fallback (advanced knobs only)
+#
+# The default docker-compose.yaml flow needs NONE of this: every credential
+# and URL arrives through container environment (see the x-credentials block
+# in docker-compose.yaml). Only copy this file to `config.yml` (same
+# directory, gitignored) if you need to change a non-secret default below.
+#
+# Resolution order: saved Admin Preferences (session timeout, registration)
+# -> environment variable -> this file -> safe built-in defaults in
+# app/config.py.
+
+app:
+  name: "Lavix Vault"                 # APP_NAME
+  version: "0.9.49-beta"               # APP_VERSION
+  env: "production"                   # APP_ENV: production | dev | e2e | test
+  log_level: "INFO"                   # LOG_LEVEL
+  timezone: "Asia/Kolkata"            # LAVIX_TIMEZONE: IANA name used for chat clock answers
+
+database:
+  host: "postgres"                    # DB_HOST
+  port: 5432                          # DB_PORT
+  name: "vault"                       # DB_NAME
+  user: "vault"                       # DB_USER
+  # REQUIRED in the default flow via DB_PASS/DB_PASSWORD environment
+  # (docker-compose.yaml x-credentials); this file is only a fallback.
+  password: ""                        # DB_PASS
+
+redis:
+  url: "redis://redis:6379/0"         # REDIS_URL
+
+minio:
+  endpoint: "minio:9000"              # S3_ENDPOINT
+  bucket: "lavix-vault"               # S3_BUCKET_NAME
+  secure: false                       # S3_SECURE
+  # Fallback only: the default flow passes these through MINIO_ROOT_USER,
+  # MINIO_ROOT_PASSWORD, S3_ACCESS_KEY and S3_SECRET_KEY environment.
+  root_user: ""                       # MINIO_ROOT_USER
+  root_password: ""                   # MINIO_ROOT_PASSWORD
+  access_key: ""                      # S3_ACCESS_KEY
+  secret_key: ""                      # S3_SECRET_KEY
+
+security:
+  # REQUIRED. >=32 random chars. Rotating this signs out every session.
+  secret_key: ""                      # SECRET_KEY
+  # REQUIRED. Independent random value (must differ from secret_key).
+  agent_capability_secret: ""          # AGENT_CAPABILITY_SECRET
+  agent_capability_ttl_seconds: 300    # AGENT_CAPABILITY_TTL_SECONDS
+  algorithm: "HS256"                   # ALGORITHM: HS256 | HS384 | HS512
+  access_token_expire_minutes: 120     # ACCESS_TOKEN_EXPIRE_MINUTES
+  session_idle_timeout_minutes: 120    # SESSION_IDLE_TIMEOUT_MINUTES
+  refresh_token_expire_days: 7         # REFRESH_TOKEN_EXPIRE_DAYS
+  max_active_sessions_per_user: 5      # MAX_ACTIVE_SESSIONS
+  registration_enabled: false          # REGISTRATION_ENABLED (compose default starts "true" for the first account)
+  auth_rate_limit_fail_closed: true    # AUTH_RATE_LIMIT_FAIL_CLOSED
+  validate_preview_ip: true            # VALIDATE_PREVIEW_IP
+  allowed_origins:                     # ALLOWED_ORIGINS (comma-separated)
+    - "http://localhost:3005"
+
+encryption:
+  script_path: "/app/enc/encryption.py"        # ENCRYPTION_SCRIPT
+  public_key_path: "/app/enc/public_4096.pem"  # PUBLIC_KEY (bind-mounted from ./secrets)
+  private_key_path: "/run/secrets/private_key" # PRIVATE_KEY (docker secret from ./secrets)
+
+models:
+  ollama_base_url: "http://host.docker.internal:11434"  # OLLAMA_BASE_URL
+  llm_model: "llama3.2:3b" # LLM_MODEL
+  allowed_chat_models: []              # ALLOWED_CHAT_MODELS (empty = llm_model)
+  vision_model: "qwen2.5vl:3b"  # VISION_MODEL
+  vision_num_ctx: 16384                # VISION_NUM_CTX
+  intelligence_model: "qwen2.5vl:3b"  # INTELLIGENCE_MODEL
+  intelligence_num_ctx: 16384          # INTELLIGENCE_NUM_CTX
+  embedding_model_name: "snowflake-arctic-embed2:cpu"  # EMBEDDING_MODEL_NAME
+  embedding_dimension: 1024            # EMBEDDING_DIMENSION (must match pgvector schema)
+  embedding_batch_size: 16             # EMBEDDING_BATCH_SIZE
+  embedding_timeout_seconds: 300       # EMBEDDING_TIMEOUT
+  vision_timeout_seconds: 300          # VISION_TIMEOUT
+  intelligence_timeout_seconds: 300    # INTELLIGENCE_TIMEOUT
+  intelligence_priority_wait_seconds: 2  # INTELLIGENCE_PRIORITY_WAIT_SECONDS
+
+reranker:
+  base_url: "http://reranker:7997"     # RERANK_BASE_URL
+  model: "BAAI/bge-reranker-base"      # RERANK_MODEL
+  min_score: 0.15                      # RERANK_MIN_SCORE (0.0–1.0)
+
+about_me:
+  portrait_model: ""                   # ABOUT_ME_PORTRAIT_MODEL (empty = memory-extraction model)
+
+retriever:
+  discovery_min_score: 0.35            # DISCOVERY_MIN_SCORE (0.0–1.0)
+  interactive_timeout_seconds: 20      # INTERACTIVE_RERANK_TIMEOUT
+  max_input_chars: 900                 # RERANK_MAX_INPUT_CHARS
+
+agent_runtime:
+  url: "http://agent-runtime:8090"     # AGENT_RUNTIME_URL
+  read_timeout_seconds: 450            # AGENT_RUNTIME_READ_TIMEOUT_SECONDS (must exceed run_timeout + margin)
+  num_predict: 2048                    # LAVIX_AGENT_OLLAMA_NUM_PREDICT
+  queue_wait_timeout_seconds: 30       # LAVIX_AGENT_QUEUE_WAIT_TIMEOUT_SECONDS
+  run_timeout_seconds: 420             # LAVIX_AGENT_RUN_TIMEOUT_SECONDS
+
+search:
+  searxng_url: "http://searxng:8080"   # SEARXNG_URL
+  # Per-leg web result count is governed by the admin search_depth setting
+  # (Settings > AI Models > Web Search); no static default is configured.
+  web_search_timeout_seconds: 12       # WEB_SEARCH_TIMEOUT (must exceed slowest engine timeout: mwmbl 10s)
+  web_search_hard_timeout_seconds: 12.0  # WEB_SEARCH_HARD_TIMEOUT
+  web_search_cache_ttl_seconds: 300    # WEB_SEARCH_CACHE_TTL
+  web_page_fetch_enabled: false        # WEB_PAGE_FETCH_ENABLED
+  web_page_max_bytes: 2097152          # WEB_PAGE_MAX_BYTES
+  web_page_max_redirects: 3            # WEB_PAGE_MAX_REDIRECTS
+
+citation:
+  relevance_enabled: true              # CITATION_RELEVANCE_ENABLED
+  relevance_threshold: 0.5             # CITATION_RELEVANCE_THRESHOLD (0.0–1.0)
+
+google_oauth:
+  client_id: ""                        # GOOGLE_CLIENT_ID (optional)
+  client_secret: ""                    # GOOGLE_CLIENT_SECRET
+  redirect_uri: ""                     # GOOGLE_REDIRECT_URI
+
+files:
+  max_size_bytes: 536870912            # MAX_FILE_SIZE (512 MiB)
+  temp_dir: "/app/temp"                # TEMP_DIR
+  ingestion_temp_root: "/app/temp"     # INGESTION_TEMP_ROOT
+
+ingestion:
+  opendataloader_hybrid_timeout_ms: 3600000  # OPENDATALOADER_HYBRID_TIMEOUT_MS
+  lease_seconds: 600                   # INGESTION_LEASE_SECONDS
+  heartbeat_seconds: 15                # INGESTION_HEARTBEAT_SECONDS
+  retry_base_seconds: 5                # INGESTION_RETRY_BASE_SECONDS
+  parser_timeout_seconds: 7200         # INGESTION_PARSER_TIMEOUT_SECONDS
+  decrypt_timeout_seconds: 120         # INGESTION_DECRYPT_TIMEOUT_SECONDS
+
+graph_memory:
+  heartbeat_seconds: 30                # GRAPH_MEMORY_HEARTBEAT_SECONDS
+  lease_seconds: 300                   # GRAPH_MEMORY_LEASE_SECONDS
+  maintenance_interval_seconds: 86400  # GRAPH_MEMORY_MAINTENANCE_INTERVAL_SECONDS
+  retry_base_seconds: 5                # GRAPH_MEMORY_RETRY_BASE_SECONDS
+  # Optional Neo4j projection (PostgreSQL stays canonical). Default OFF;
+  # enabling on live is a manual rollout step after volume backups.
+  neo4j_enabled: false                 # GRAPH_MEMORY_NEO4J_ENABLED
+  neo4j_uri: bolt://neo4j:7687         # GRAPH_MEMORY_NEO4J_URI
+  neo4j_user: neo4j                     # GRAPH_MEMORY_NEO4J_USER
+  neo4j_password_file: /app/config/secrets/neo4j_password  # GRAPH_MEMORY_NEO4J_PASSWORD_FILE
+  # Fallback only: the default flow passes NEO4J_PASSWORD environment, which
+  # the app prefers over this file. A "neo4j/<password>" value is also
+  # accepted (the user prefix is stripped).
+  neo4j_database: neo4j                # GRAPH_MEMORY_NEO4J_DATABASE
+  neo4j_timeout_seconds: 3             # GRAPH_MEMORY_NEO4J_TIMEOUT_SECONDS
+  # Phase 5 question topics (Neo4j-only, 30-day TTL, synthesis context
+  # only — never R1/planner/web). Default OFF; isolated-stack only.
+  question_memory_enabled: false      # GRAPH_QUESTION_MEMORY_ENABLED

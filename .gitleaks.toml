@@ -1,0 +1,21 @@
+# Gitleaks configuration for Lavix Vault.
+#
+# CI runs: gitleaks detect --source . --config .gitleaks.toml
+# Any finding outside this allowlist fails the build.
+
+title = "Lavix Vault gitleaks config"
+
+[allowlist]
+description = "Synthetic test fixtures (never real credentials)"
+paths = [
+  '''tests/unit/test_graph_memory\.py''',
+  '''tests/unit/test_agent_runtime_cuga_adapter\.py''',
+]
+# These two patterns only ever appear in unit tests as obviously-fake
+# placeholders: `mabcdef123456` (fake API key in a memory test) and
+# `mopaque-capability-*` (fake capability tokens). Real capability
+# tokens are 32+ hex chars with no such prefix.
+regexes = [
+  '''mabcdef123456''',
+  '''mopaque-capability-[a-z0-9]+''',
+]

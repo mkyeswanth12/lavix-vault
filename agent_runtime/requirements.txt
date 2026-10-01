@@ -1,0 +1,11 @@
+# Runtime-only environment. Keep this out of the main API dependency graph.
+--index-url https://pypi.org/simple
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+fastapi==0.136.1
+httpx==0.28.1
+uvicorn[standard]==0.41.0
+langchain-ollama>=1.0,<2.0
+torch==2.11.0+cpu
+torchvision==0.26.0+cpu
+cuga @ https://github.com/cuga-project/cuga-agent/archive/ef3eac315d20bb88064755bd87cc6d434b90f8a0.tar.gz

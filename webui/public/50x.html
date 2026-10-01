@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lavix Vault — Service Unavailable</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #000;
+            color: #e4e4e7;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .card {
+            width: 100%;
+            max-width: 480px;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+        }
+        .top-bar {
+            height: 3px;
+            background: linear-gradient(90deg, #EC1C24, #ff6b35, #EC1C24);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .body { padding: 2.5rem; text-align: center; }
+        .icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(236,28,36,0.1);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        .icon svg { color: #EC1C24; }
+        .status-code {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #EC1C24;
+            margin-bottom: 0.5rem;
+        }
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+        p {
+            font-size: 0.9rem;
+            color: #71717a;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .countdown {
+            font-size: 0.8rem;
+            color: #52525b;
+            margin-bottom: 1.5rem;
+        }
+        .countdown span {
+            color: #a1a1aa;
+            font-weight: 600;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: #EC1C24;
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+        .btn:hover { background: #c41019; }
+        .divider {
+            height: 1px;
+            background: #1a1a1a;
+            margin: 1.5rem 0;
+        }
+        .hint {
+            font-size: 0.75rem;
+            color: #3f3f46;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="top-bar"></div>
+        <div class="body">
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div class="status-code">Service Unavailable</div>
+            <h1>Backend Not Responding</h1>
+            <p>The Lavix Vault backend is not reachable. It may be starting up, restarting after a crash, or temporarily overloaded.</p>
+            <div class="countdown">Retrying automatically in <span id="timer">15</span>s</div>
+            <button class="btn" onclick="retry()">Retry Now</button>
+            <div class="divider"></div>
+            <div class="hint">If this persists, check the server logs or contact your administrator.</div>
+        </div>
+    </div>
+
+    <script>
+        var seconds = 15;
+        var timerEl = document.getElementById('timer');
+        var interval = setInterval(function() {
+            seconds--;
+            timerEl.textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(interval);
+                retry();
+            }
+        }, 1000);
+
+        function retry() {
+            clearInterval(interval);
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+[
+  {"id": "faith-01", "query": "When did Narendra Modi become Prime Minister?", "must_contain": ["2014"], "must_not_contain": ["Rahul Gandhi"]},
+  {"id": "faith-02", "query": "Who won the 2022 Ballon d'Or?", "must_contain": ["Benzema"], "must_not_contain": ["Mbapp", "Messi"]},
+  {"id": "faith-03", "query": "What is the capital of France?", "must_contain": ["Paris"], "must_not_contain": []},
+  {"id": "faith-04", "query": "What is 12*8?", "must_contain": ["96"], "must_not_contain": []},
+  {"id": "faith-05", "query": "Which city is the Taj Mahal in?", "must_contain": ["Agra"], "must_not_contain": ["Delhi"]},
+  {"id": "faith-06", "query": "Which country is the Great Barrier Reef in?", "must_contain": ["Australia"], "must_not_contain": ["New Zealand"]},
+  {"id": "faith-07", "query": "Who created the Python programming language?", "must_contain": ["Guido", "Rossum"], "must_not_contain": ["Dennis Ritchie"]},
+  {"id": "faith-08", "query": "Which city is the Eiffel Tower in?", "must_contain": ["Paris"], "must_not_contain": ["London"]},
+  {"id": "faith-09", "query": "At what temperature does water boil in Celsius?", "must_contain": ["100"], "must_not_contain": []},
+  {"id": "faith-10", "query": "Who was the first man on the moon?", "must_contain": ["Neil Armstrong"], "must_not_contain": ["Buzz Aldrin was first"]}
+]

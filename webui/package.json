@@ -1,0 +1,29 @@
+{
+  "name": "lavix-vault-webui",
+  "version": "0.9.49-beta",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "node --test src/frontend-workflows.test.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@e965/xlsx": "0.20.3",
+    "dompurify": "3.4.12",
+    "highlight.js": "^11.9.0",
+    "mammoth": "1.12.0",
+    "marked": "^12.0.0",
+    "pdfjs-dist": "6.1.200",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "5.2.0",
+    "autoprefixer": "^10.4.17",
+    "jsdom": "29.1.1",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "vite": "8.1.4"
+  }
+}

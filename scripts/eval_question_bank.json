@@ -1,0 +1,83 @@
+{
+  "_comment": "Live adversarial-regression bank. Verdicts are PASS/FLAG/FAIL: only transport, shape, marker-leak, and deterministic-path mismatches FAIL. Model-text quality only ever FLAGs. See scripts/eval_live_rag.py.",
+  "questions": [
+    {
+      "id": "lehman-control",
+      "question": "Lehman Brothers bankruptcy",
+      "web_search": true,
+      "accept": ["answer"],
+      "assert": ["sources_nonempty"]
+    },
+    {
+      "id": "captain-thin-evidence",
+      "question": "Who is the current captain of the Indian men's Test cricket team?",
+      "web_search": true,
+      "accept": ["answer", "error:web_no_evidence"]
+    },
+    {
+      "id": "elon-identity",
+      "question": "who is Elon Musk",
+      "web_search": true,
+      "accept": ["answer"],
+      "assert": ["sources_empty"]
+    },
+    {
+      "id": "cricket-identity",
+      "question": "tell me about Cricket Australia",
+      "web_search": true,
+      "accept": ["answer"],
+      "assert": ["sources_empty"]
+    },
+    {
+      "id": "calc-exact",
+      "question": "2+2?",
+      "web_search": false,
+      "accept": ["answer"],
+      "must_contain": ["The result is 4."]
+    },
+    {
+      "id": "calc-year-guard",
+      "question": "2024-2025",
+      "web_search": false,
+      "accept": ["answer"],
+      "must_not_contain": ["The result is -1"]
+    },
+    {
+      "id": "calc-ssn-guard",
+      "question": "123-45-6789",
+      "web_search": false,
+      "accept": ["answer"],
+      "must_not_contain": ["The result is -6711", "The result is -6,711"]
+    },
+    {
+      "id": "news-suppression-check",
+      "question": "latest Cricket Australia news",
+      "web_search": true,
+      "accept": ["answer", "error:web_no_evidence"]
+    },
+    {
+      "id": "identity-veto-variant",
+      "question": "tell me about the latest Cricket Australia news",
+      "web_search": true,
+      "accept": ["answer", "error:web_no_evidence"]
+    },
+    {
+      "id": "greeting-shape",
+      "question": "hello",
+      "web_search": false,
+      "accept": ["answer"]
+    },
+    {
+      "id": "oscar-thin-evidence",
+      "question": "Who won the Best Picture Oscar in 2025?",
+      "web_search": true,
+      "accept": ["answer", "error:web_no_evidence"]
+    },
+    {
+      "id": "nadella-control",
+      "question": "Who is the CEO of Microsoft?",
+      "web_search": true,
+      "accept": ["answer", "error:web_no_evidence"]
+    }
+  ]
+}

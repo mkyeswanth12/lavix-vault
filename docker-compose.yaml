@@ -1,0 +1,398 @@
+name: lavix-vault
+
+# =====================================================================
+# 1. EDIT THIS SECTION
+#    ./scripts/generate-keys.sh          creates the RSA keys in ./secrets
+#    ./scripts/gen-passwords.sh --write  fills every CHANGE_ME below
+#    Set OLLAMA_URL by hand, then run:   docker compose up -d --build
+#    Secrets: letters, digits, _ and - only. All secrets must differ.
+#    The stack refuses to start while any value is invalid.
+# =====================================================================
+x-settings:
+  # --- Ollama and models (pull them on your Ollama server first) ---
+  OLLAMA_URL:       &ollama-url    CHANGE_ME                      # http://IP:PORT of your Ollama, reachable from Docker
+  EMBEDDING_MODEL:  &embed-model   snowflake-arctic-embed2:cpu    # fixed at first start, see README "Choosing models"
+  EMBEDDING_DIMS:   &embed-dims    "1024"                         # must match the embedding model's output size
+
+  # --- Reranker: local | external | off (local needs the reranker service below) ---
+  RERANKER_MODE:    &rerank-mode   local
+  RERANKER_URL:     &rerank-url    http://reranker:7997           # only used when external
+  RERANKER_MODEL:   &rerank-model  BAAI/bge-reranker-base         # presets only: BAAI/bge-reranker-base or cross-encoder/ms-marco-MiniLM-L-6-v2. Changing it needs: docker compose build reranker
+
+  # --- Secrets ---
+  DB_PASSWORD:              &db-password     CHANGE_ME   # 16+ characters
+  MINIO_ROOT_PASSWORD:      &minio-root      CHANGE_ME   # 16+ characters
+  MINIO_APP_SECRET_KEY:     &minio-app       CHANGE_ME   # 16+ characters
+  SECRET_KEY:               &secret-key      CHANGE_ME   # 32+ characters, signs logins
+  AGENT_CAPABILITY_SECRET:  &agent-secret    CHANGE_ME   # 32+ characters, signs agent tool tokens
+  SEARXNG_SECRET:           &searxng-secret  CHANGE_ME   # 32+ characters
+
+  # --- Optional graph memory (off by default; needs the `graph` profile too) ---
+  GRAPH_MEMORY:             &graph-memory  "true"       # "false" disables the Neo4j projection below
+  NEO4J_PASSWORD:           &neo4j-password  CHANGE_ME  # 16+ characters; always checked
+
+# =====================================================================
+# 2. DO NOT EDIT BELOW
+# =====================================================================
+x-hardened: &hardened
+  user: "10001:10001"
+  read_only: true
+  cap_drop: [ALL]
+  security_opt:
+    - no-new-privileges:true
+
+# Shared by migrate, api and the workers (written once).
+x-app-env: &app-env
+  TZ: UTC
+  DB_HOST: postgres
+  DB_NAME: vault
+  DB_USER: vault
+  DB_PASSWORD: *db-password
+  REDIS_URL: redis://redis:6379/0
+  S3_ENDPOINT: minio:9000
+  S3_BUCKET_NAME: lavix-vault
+  S3_ACCESS_KEY: lavix-app              # fixed name, not a secret
+  S3_SECRET_KEY: *minio-app
+  OLLAMA_BASE_URL: *ollama-url
+  EMBEDDING_MODEL: *embed-model
+  EMBEDDING_DIMENSIONS: *embed-dims
+  RERANKER_MODE: *rerank-mode
+  RERANKER_URL: *rerank-url
+  RERANK_MODEL: *rerank-model
+
+# Lets containers reach an Ollama running on the Docker host.
+x-host-gateway: &host-gateway ["host.docker.internal:host-gateway"]
+
+services:
+  # Fail-closed gate: exits non-zero and names the bad setting. The data stores,
+  # search and the agent depend on it, so nothing initialises with CHANGE_ME.
+  preflight:
+    image: busybox:1.37.0@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    command: [sh, /gate.sh]
+    volumes:
+      - type: bind
+        source: ./scripts/preflight-gate.sh
+        target: /gate.sh
+        read_only: true
+        bind: {create_host_path: false}
+    environment:
+      OLLAMA_URL: *ollama-url
+      RERANKER_MODE: *rerank-mode
+      RERANKER_URL: *rerank-url
+      RERANKER_MODEL: *rerank-model
+      DB_PASSWORD: *db-password
+      MINIO_ROOT_PASSWORD: *minio-root
+      MINIO_APP_SECRET_KEY: *minio-app
+      SECRET_KEY: *secret-key
+      AGENT_CAPABILITY_SECRET: *agent-secret
+      SEARXNG_SECRET: *searxng-secret
+      GRAPH_MEMORY: *graph-memory
+      NEO4J_PASSWORD: *neo4j-password
+    networks: [backend]
+    restart: "no"
+
+  # ---------- Data stores ----------
+  postgres:
+    image: pgvector/pgvector:pg15@sha256:18d16372b8406bb38a9f94cbff15d125c463d71fde2770aa8b5c64bfcc1578ee
+    depends_on:
+      preflight: {condition: service_completed_successfully}
+    environment:
+      POSTGRES_DB: vault
+      POSTGRES_USER: vault
+      POSTGRES_PASSWORD: *db-password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks: [backend]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U vault -d vault"]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
+    command: [redis-server, --appendonly, "yes"]
+    volumes:
+      - redis-data:/data
+    networks: [backend]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    command: [server, /data]
+    depends_on:
+      preflight: {condition: service_completed_successfully}
+    environment:
+      MINIO_ROOT_USER: lavix-root           # fixed name, not a secret
+      MINIO_ROOT_PASSWORD: *minio-root
+    volumes:
+      - minio-data:/data
+    networks: [backend]
+    healthcheck:
+      test: [CMD, curl, -fsS, http://localhost:9000/minio/health/live]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # One-shot: creates the bucket and a restricted app user (logic in the script).
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
+    entrypoint: [/bin/sh, /minio-init.sh]
+    depends_on:
+      minio: {condition: service_healthy}
+    volumes:
+      - type: bind
+        source: ./scripts/minio-init.sh
+        target: /minio-init.sh
+        read_only: true
+        bind: {create_host_path: false}
+    environment:
+      MINIO_ROOT_USER: lavix-root
+      MINIO_ROOT_PASSWORD: *minio-root
+      MINIO_APP_ACCESS_KEY: lavix-app
+      MINIO_APP_SECRET_KEY: *minio-app
+      MINIO_BUCKET_NAME: lavix-vault
+    networks: [backend]
+    restart: "no"
+
+  # ---------- Application ----------
+  migrate:                                  # one-shot database migrations
+    image: lavix-vault:0.9.49-beta
+    build: {context: ., target: runtime}
+    command: [python, -m, app.db.migrate, up]
+    <<: *hardened
+    environment: *app-env
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    networks: [backend]
+    depends_on:
+      postgres: {condition: service_healthy}
+    restart: "no"
+
+  api:
+    image: lavix-vault:0.9.49-beta
+    build: {context: ., target: runtime}
+    command: [uvicorn, app.main:app, --host, 0.0.0.0, --port, "8080", --workers, "1"]
+    <<: *hardened
+    environment:
+      <<: *app-env
+      SECRET_KEY: *secret-key
+      AGENT_CAPABILITY_SECRET: *agent-secret      # api only, never the agent
+      SEARXNG_URL: http://searxng:8080
+      # Leave "true" until your first admin exists. Then turn registration off in
+      # Admin > Preferences (that saved setting overrides this value, no restart).
+      REGISTRATION_ENABLED: "true"
+    secrets: [private_key]
+    volumes:
+      - type: bind
+        source: ./secrets/public_4096.pem
+        target: /app/enc/public_4096.pem
+        read_only: true
+        bind: {create_host_path: false}
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+      - /app/temp:size=1g,mode=0700,uid=10001,gid=10001
+    networks: [frontend, backend, agent-tools]
+    depends_on:
+      migrate:        {condition: service_completed_successfully}
+      minio-init:     {condition: service_completed_successfully}
+      redis:          {condition: service_healthy}
+      agent-runtime:  {condition: service_healthy}
+    extra_hosts: *host-gateway
+    mem_limit: 4g
+    cpus: 2.0
+    ports:
+      - "9999:8080"                          # API
+    healthcheck:
+      test: [CMD, curl, -fsS, http://localhost:8080/api/health/ready]
+      interval: 10s
+      retries: 20
+    restart: unless-stopped
+
+  webui:
+    image: lavix-vault-webui:0.9.49-beta
+    build: {context: ./webui}
+    user: "101:101"
+    <<: *hardened
+    tmpfs:
+      - /tmp:size=64m,mode=1777,uid=101,gid=101
+    networks: [frontend]
+    depends_on:
+      api: {condition: service_healthy}
+    ports:
+      - "3005:8080"                          # Web UI
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1:8080/"]
+      interval: 10s
+      retries: 10
+    restart: unless-stopped
+
+  # Scale for faster bulk uploads:  docker compose up -d --scale ingestion-worker=2
+  ingestion-worker:
+    image: lavix-vault-worker:0.9.49-beta
+    build: {context: ., target: worker}
+    command: [python, -m, app.ingestion.worker]
+    <<: *hardened
+    environment:
+      <<: *app-env
+      OPENDATALOADER_HYBRID_URL: http://odl-hybrid:5002
+    secrets: [private_key]
+    volumes:
+      - model-cache:/home/lavix/.cache
+    tmpfs:
+      - /tmp:size=2g,mode=1777,uid=10001,gid=10001
+      - /app/temp:size=2g,mode=0700,uid=10001,gid=10001
+    networks: [backend, document-processing]
+    depends_on:
+      migrate:     {condition: service_completed_successfully}
+      minio-init:  {condition: service_completed_successfully}
+      odl-hybrid:  {condition: service_healthy}
+    extra_hosts: *host-gateway
+    mem_limit: 8g
+    cpus: 4.0
+    stop_grace_period: 2h15m                 # lets a running large document finish; 15 minutes above the 2h parser ceiling
+    restart: unless-stopped
+
+  graph-memory-worker:
+    image: lavix-vault:0.9.49-beta
+    build: {context: ., target: runtime}
+    command: [python, -m, app.graph_memory.worker]
+    <<: *hardened
+    environment:
+      <<: *app-env
+      GRAPH_MEMORY_NEO4J_ENABLED: *graph-memory
+      NEO4J_PASSWORD: *neo4j-password
+    tmpfs:
+      - /tmp:size=128m,mode=1777,uid=10001,gid=10001
+    networks: [backend]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis:   {condition: service_healthy}
+      neo4j: {condition: service_healthy, required: false}
+    extra_hosts: *host-gateway
+    restart: unless-stopped
+
+  # Isolated chat orchestrator. Gets no application secrets on purpose.
+  agent-runtime:
+    image: lavix-vault-agent:0.9.49-beta
+    build: {context: ., dockerfile: agent_runtime/Dockerfile}
+    user: "10002:10002"
+    <<: *hardened
+    environment:
+      LAVIX_AGENT_OLLAMA_BASE_URL: *ollama-url
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    networks: [agent-tools]
+    depends_on:
+      preflight: {condition: service_completed_successfully}
+    extra_hosts: *host-gateway
+    mem_limit: 3g
+    cpus: 2.0
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8090/internal/v1/health/live', timeout=2).read()"]
+      interval: 10s
+      retries: 30
+    restart: unless-stopped
+
+  # ---------- Helpers ----------
+  odl-hybrid:                                # PDF parsing service used by the workers
+    image: lavix-vault-worker:0.9.49-beta
+    build: {context: ., target: worker}
+    command: [opendataloader-pdf-hybrid, --host, 0.0.0.0, --port, "5002", --device, cpu, --ocr-engine, tesseract, --ocr-lang, eng, --max-file-size, "512"]
+    <<: *hardened
+    volumes:
+      - model-cache:/home/lavix/.cache
+    networks: [document-processing]
+    mem_limit: 8g
+    cpus: 4.0
+    tmpfs:
+      - /tmp:size=2g,mode=0700,uid=10001,gid=10001
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5002/health', timeout=3)"]
+      interval: 10s
+      retries: 30
+      start_period: 120s
+    restart: unless-stopped
+
+  # Stop it with "docker compose up -d --scale reranker=0" when RERANKER_MODE is external or off.
+  reranker:
+    image: lavix-vault-reranker:0.9.49-beta
+    build: {context: ., dockerfile: reranker/Dockerfile, args: {RERANKER_MODEL: *rerank-model}}
+    <<: *hardened
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+    networks: [backend]
+    mem_limit: 3g
+    cpus: 2.0
+    healthcheck:
+      test: [CMD, curl, -fsS, http://localhost:7997/health]
+      interval: 10s
+      retries: 30
+      start_period: 120s
+    restart: unless-stopped
+
+  # Relationship-memory projection (PostgreSQL stays canonical).
+  # Runs on every plain `docker compose up -d`. To opt out, set GRAPH_MEMORY
+  # "false" above and scale it away: `docker compose up -d --scale neo4j=0`.
+  neo4j:
+    image: neo4j:5-community@sha256:3119115b370b683ebc2d1c7b58a72b4a350210fb380b9017932365b3ffcd8e86
+    environment:
+      NEO4J_PASSWORD: *neo4j-password
+    entrypoint: [/bin/sh, /neo4j-start.sh]
+    volumes:
+      - neo4j-data:/data
+      - type: bind
+        source: ./scripts/neo4j-start.sh
+        target: /neo4j-start.sh
+        read_only: true
+        bind: {create_host_path: false}
+    networks: [backend]
+    mem_limit: 2g
+    cpus: 1.0
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O /dev/null http://localhost:7474/"]
+      interval: 10s
+      retries: 20
+    restart: unless-stopped
+
+  searxng:                                   # web search, internal only (no published port)
+    image: searxng/searxng@sha256:11ffedd387dc9cf99e881250c67861470384e55194a86f76df76aa0034a28a1a
+    networks: [backend]
+    depends_on:
+      preflight: {condition: service_completed_successfully}
+    environment:
+      SEARXNG_SECRET: *searxng-secret
+      BASE_URL: http://searxng:8080
+    volumes:
+      - type: bind
+        source: ./searxng/settings.yml
+        target: /etc/searxng/settings.yml
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./searxng/limiter.toml
+        target: /etc/searxng/limiter.toml
+        read_only: true
+        bind: {create_host_path: false}
+    restart: unless-stopped
+
+networks:
+  frontend: {}
+  backend: {}
+  agent-tools: {}
+  document-processing: {}
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+  model-cache:
+  neo4j-data:
+
+secrets:
+  private_key:
+    file: ./secrets/private_4096.pem

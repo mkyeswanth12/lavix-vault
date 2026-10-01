@@ -1,0 +1,14 @@
+[
+  {"id": "ret-01", "query": "Python 3.12 release notes", "expected_domains": ["python.org"]},
+  {"id": "ret-02", "query": "iPhone 17 price", "expected_domains": ["flipkart.com", "apple.com"]},
+  {"id": "ret-03", "query": "Who won the 2022 Ballon d'Or?", "expected_domains": ["wikipedia.org", "uefa.com", "francefootball.fr"]},
+  {"id": "ret-04", "query": "Narendra Modi became Prime Minister year", "expected_domains": ["wikipedia.org"]},
+  {"id": "ret-05", "query": "Great Barrier Reef size length", "expected_domains": ["wikipedia.org", "gbrmpa.gov.au"]},
+  {"id": "ret-06", "query": "Ollama num_ctx model run options", "expected_domains": ["ollama.com", "github.com"]},
+  {"id": "ret-07", "query": "SearXNG settings engines configuration", "expected_domains": ["docs.searxng.org", "github.com"]},
+  {"id": "ret-08", "query": "pgvector cosine distance operator", "expected_domains": ["github.com", "postgresql.org"]},
+  {"id": "ret-09", "query": "BAAI bge-reranker-base infinity", "expected_domains": ["github.com", "huggingface.co"]},
+  {"id": "ret-10", "query": "Tesseract OCR PSM modes list", "expected_domains": ["github.com", "tesseract-ocr.github.io"]},
+  {"id": "ret-11", "query": "FastAPI background tasks documentation", "expected_domains": ["fastapi.tiangolo.com"]},
+  {"id": "ret-12", "query": "Taj Mahal location city", "expected_domains": ["wikipedia.org"]}
+]
