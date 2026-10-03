@@ -78,5 +78,3 @@ printf '  1. ./scripts/gen-passwords.sh --write   # fill credentials in docker-c
 printf '  2. edit docker-compose.yaml: set OLLAMA_URL to http://IP:PORT\n'
 printf '  3. ./scripts/preflight.sh\n'
 printf '  4. docker compose build && docker compose up -d\n'
-printf '\nRunning preflight to show the current state:\n'
-"$ROOT_DIR/scripts/preflight.sh" || true
