@@ -1,4 +1,4 @@
-/* lavix-vault-webui v0.9.49-beta */
+/* lavix-vault-webui v1.0.0 */
 import React, { useState, useEffect, useRef, useMemo, Component } from 'react'
 import { createPortal } from 'react-dom'
 import { api, assistantDisplayText, clearAuthSession, formatApiError, installSessionActivityTracking, renderAssistantMarkdown, renderMarkdown, safeExternalUrl, storeAuthSession, stripAssistantProtocolArtifacts } from './vault-client.js'

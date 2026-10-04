@@ -61,7 +61,7 @@ def create_app(
 
     app = FastAPI(
         title="Lavix CUGA Runtime",
-        version="0.9.49-beta",
+        version="1.0.0",
         docs_url=None,
         redoc_url=None,
         openapi_url=None,

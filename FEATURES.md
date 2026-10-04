@@ -1,4 +1,4 @@
-# Lavix Vault — memory subsystem features (v0.9.49-beta → v1.0.0 candidate)
+# Lavix Vault — memory subsystem features (v1.0.0)
 
 Status key: TESTED = covered by unit tests AND live-verified on an isolated
 stack (separate `-p` project + shifted ports). UNIT = unit tests only.

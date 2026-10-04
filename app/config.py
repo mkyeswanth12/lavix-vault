@@ -224,7 +224,7 @@ class Settings:
 
     @property
     def app_version(self) -> str:
-        return _setting_str("app.version", "APP_VERSION", "0.9.49-beta")
+        return _setting_str("app.version", "APP_VERSION", "1.0.0")
 
     @property
     def log_level(self) -> str:

@@ -322,14 +322,14 @@ and `minio-init` run once per start and exit.
 | postgres | pgvector/pgvector:pg15 | none | backend |
 | redis | redis:7.4-alpine | none | backend |
 | minio / minio-init | minio images | none | backend |
-| migrate | lavix-vault:0.9.49-beta | none | backend |
-| api | lavix-vault:0.9.49-beta | 9999:8080 | frontend, backend, agent-tools |
-| webui | lavix-vault-webui:0.9.49-beta | 3005:8080 | frontend |
-| ingestion-worker | lavix-vault-worker:0.9.49-beta | none | backend, document-processing |
-| graph-memory-worker | lavix-vault:0.9.49-beta | none | backend |
-| agent-runtime | lavix-vault-agent:0.9.49-beta | none | agent-tools |
-| odl-hybrid | lavix-vault-worker:0.9.49-beta | none | document-processing |
-| reranker | lavix-vault-reranker:0.9.49-beta | none | backend |
+| migrate | lavix-vault:1.0.0 | none | backend |
+| api | lavix-vault:1.0.0 | 9999:8080 | frontend, backend, agent-tools |
+| webui | lavix-vault-webui:1.0.0 | 3005:8080 | frontend |
+| ingestion-worker | lavix-vault-worker:1.0.0 | none | backend, document-processing |
+| graph-memory-worker | lavix-vault:1.0.0 | none | backend |
+| agent-runtime | lavix-vault-agent:1.0.0 | none | agent-tools |
+| odl-hybrid | lavix-vault-worker:1.0.0 | none | document-processing |
+| reranker | lavix-vault-reranker:1.0.0 | none | backend |
 | searxng | searxng/searxng | none | backend |
 | neo4j (optional) | neo4j:5-community | none | backend |
 

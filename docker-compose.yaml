@@ -161,7 +161,7 @@ services:
 
   # ---------- Application ----------
   migrate:                                  # one-shot database migrations
-    image: lavix-vault:0.9.49-beta
+    image: lavix-vault:1.0.0
     build: {context: ., target: runtime}
     command: [python, -m, app.db.migrate, up]
     <<: *hardened
@@ -174,7 +174,7 @@ services:
     restart: "no"
 
   api:
-    image: lavix-vault:0.9.49-beta
+    image: lavix-vault:1.0.0
     build: {context: ., target: runtime}
     command: [uvicorn, app.main:app, --host, 0.0.0.0, --port, "8080", --workers, "1"]
     <<: *hardened
@@ -214,7 +214,7 @@ services:
     restart: unless-stopped
 
   webui:
-    image: lavix-vault-webui:0.9.49-beta
+    image: lavix-vault-webui:1.0.0
     build: {context: ./webui}
     user: "101:101"
     <<: *hardened
@@ -233,7 +233,7 @@ services:
 
   # Scale for faster bulk uploads:  docker compose up -d --scale ingestion-worker=2
   ingestion-worker:
-    image: lavix-vault-worker:0.9.49-beta
+    image: lavix-vault-worker:1.0.0
     build: {context: ., target: worker}
     command: [python, -m, app.ingestion.worker]
     <<: *hardened
@@ -258,7 +258,7 @@ services:
     restart: unless-stopped
 
   graph-memory-worker:
-    image: lavix-vault:0.9.49-beta
+    image: lavix-vault:1.0.0
     build: {context: ., target: runtime}
     command: [python, -m, app.graph_memory.worker]
     <<: *hardened
@@ -278,7 +278,7 @@ services:
 
   # Isolated chat orchestrator. Gets no application secrets on purpose.
   agent-runtime:
-    image: lavix-vault-agent:0.9.49-beta
+    image: lavix-vault-agent:1.0.0
     build: {context: ., dockerfile: agent_runtime/Dockerfile}
     user: "10002:10002"
     <<: *hardened
@@ -300,7 +300,7 @@ services:
 
   # ---------- Helpers ----------
   odl-hybrid:                                # PDF parsing service used by the workers
-    image: lavix-vault-worker:0.9.49-beta
+    image: lavix-vault-worker:1.0.0
     build: {context: ., target: worker}
     command: [opendataloader-pdf-hybrid, --host, 0.0.0.0, --port, "5002", --device, cpu, --ocr-engine, tesseract, --ocr-lang, eng, --max-file-size, "512"]
     <<: *hardened
@@ -320,7 +320,7 @@ services:
 
   # Stop it with "docker compose up -d --scale reranker=0" when RERANKER_MODE is external or off.
   reranker:
-    image: lavix-vault-reranker:0.9.49-beta
+    image: lavix-vault-reranker:1.0.0
     build: {context: ., dockerfile: reranker/Dockerfile, args: {RERANKER_MODEL: *rerank-model}}
     <<: *hardened
     tmpfs:

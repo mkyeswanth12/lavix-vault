@@ -179,7 +179,7 @@ def test_health_does_not_initialize_cuga():
     with TestClient(app) as client:
         response = client.get("/internal/v1/health/ready")
 
-    assert app.version == "0.9.49-beta"
+    assert app.version == "1.0.0"
     assert response.json()["cuga_initialized"] is False
     assert runtime.calls == []
 

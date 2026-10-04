@@ -11,14 +11,14 @@ Who this page is for: anyone looking something up. Tables, no prose.
 | redis | redis:7.4-alpine | none | backend | none |
 | minio | quay.io/minio/minio:RELEASE.2025-09-07 | none | backend | none |
 | minio-init | minio/mc:RELEASE.2025-08-13 | none | backend | one-shot |
-| migrate | lavix-vault:0.9.49-beta | none | backend | one-shot |
-| api | lavix-vault:0.9.49-beta | 9999:8080 | frontend, backend, agent-tools | 4g, 2.0 CPU |
-| webui | lavix-vault-webui:0.9.49-beta | 3005:8080 | frontend | none |
-| ingestion-worker | lavix-vault-worker:0.9.49-beta | none | backend, document-processing | 8g, 4.0 CPU |
-| graph-memory-worker | lavix-vault:0.9.49-beta | none | backend | none |
-| agent-runtime | lavix-vault-agent:0.9.49-beta | none | agent-tools | 3g, 2.0 CPU |
-| odl-hybrid | lavix-vault-worker:0.9.49-beta | none | document-processing | 8g, 4.0 CPU |
-| reranker | lavix-vault-reranker:0.9.49-beta | none | backend | 3g, 2.0 CPU |
+| migrate | lavix-vault:1.0.0 | none | backend | one-shot |
+| api | lavix-vault:1.0.0 | 9999:8080 | frontend, backend, agent-tools | 4g, 2.0 CPU |
+| webui | lavix-vault-webui:1.0.0 | 3005:8080 | frontend | none |
+| ingestion-worker | lavix-vault-worker:1.0.0 | none | backend, document-processing | 8g, 4.0 CPU |
+| graph-memory-worker | lavix-vault:1.0.0 | none | backend | none |
+| agent-runtime | lavix-vault-agent:1.0.0 | none | agent-tools | 3g, 2.0 CPU |
+| odl-hybrid | lavix-vault-worker:1.0.0 | none | document-processing | 8g, 4.0 CPU |
+| reranker | lavix-vault-reranker:1.0.0 | none | backend | 3g, 2.0 CPU |
 | neo4j | neo4j:5-community | none | backend only | 2g, 1.0 CPU |
 | searxng | searxng/searxng | none (internal) | backend | none |
 

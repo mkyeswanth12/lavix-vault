@@ -48,7 +48,7 @@ class FakeCursor:
 def load_main(monkeypatch, *, connection: FakeConnection, schema_check):
     settings = SimpleNamespace(
         app_name="Lavix Test API",
-        app_version="0.9.49-beta",
+        app_version="1.0.0",
         allowed_origins=["https://ui.test"],
         ollama_base_url="http://ollama:11434",
         openrouter_api_key="",

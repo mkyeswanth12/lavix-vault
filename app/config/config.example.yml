@@ -11,7 +11,7 @@
 
 app:
   name: "Lavix Vault"                 # APP_NAME
-  version: "0.9.49-beta"               # APP_VERSION
+  version: "1.0.0"               # APP_VERSION
   env: "production"                   # APP_ENV: production | dev | e2e | test
   log_level: "INFO"                   # LOG_LEVEL
   timezone: "Asia/Kolkata"            # LAVIX_TIMEZONE: IANA name used for chat clock answers

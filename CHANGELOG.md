@@ -1,4 +1,10 @@
-# Changelog — v0.9.49-beta
+# Changelog — v1.0.0
+
+## v1.0.0
+
+- Version 1.0.0 across API, agent runtime, web UI, worker and reranker images.
+- Carries forward the previously shipped tree (segmented networks, non-root
+  containers, baked models, guarded embeddings, consent-controlled RAG).
 
 What this release contains (from the shipped tree):
 

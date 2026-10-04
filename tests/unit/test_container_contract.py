@@ -253,11 +253,11 @@ def test_credentials_block_holds_every_secret_with_change_me_defaults():
     # SearXNG is internal-only: no published port.
     assert '"8080:8080"' not in compose
     assert "ports:" not in _service_block(compose, "searxng")
-    assert "image: lavix-vault:0.9.49-beta" in compose
-    assert "image: lavix-vault-worker:0.9.49-beta" in compose
-    assert "image: lavix-vault-agent:0.9.49-beta" in compose
-    assert "image: lavix-vault-reranker:0.9.49-beta" in compose
-    assert "image: lavix-vault-webui:0.9.49-beta" in compose
+    assert "image: lavix-vault:1.0.0" in compose
+    assert "image: lavix-vault-worker:1.0.0" in compose
+    assert "image: lavix-vault-agent:1.0.0" in compose
+    assert "image: lavix-vault-reranker:1.0.0" in compose
+    assert "image: lavix-vault-webui:1.0.0" in compose
 
 
 def test_preflight_gate_blocks_every_secret_consumer():

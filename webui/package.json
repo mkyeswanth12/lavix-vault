@@ -1,6 +1,6 @@
 {
   "name": "lavix-vault-webui",
-  "version": "0.9.49-beta",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
