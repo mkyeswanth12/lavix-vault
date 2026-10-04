@@ -180,7 +180,8 @@ Wait until the main services say `healthy`. A few helper services run once and t
    docker compose exec api python -m app.cli promote-admin YOUR_USERNAME
    ```
 
-   Refresh the page, and log in again if the admin settings do not appear.
+   Promotion also grants file deletion (new accounts are denied deletion by
+   default). Refresh the page, and log in again if the admin settings do not appear.
 3. **Turn registration off:** Settings, then Admin, then Preferences. While registration is open, anyone who can reach the page can create an account. Do steps 1 to 3 in one sitting, and do not leave an internet-facing server open.
 
 ## Your first question

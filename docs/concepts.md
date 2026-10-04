@@ -58,7 +58,8 @@ your files can never be decrypted — there is no spare copy.
 **Admin vs user.** A user uploads files and chats. An admin additionally manages
 people (roles, quotas, password resets), models, registration, and system
 settings. The first registered user should be promoted to admin, then
-registration should be turned off.
+registration should be turned off. Promotion also grants file deletion,
+which is denied by default for new accounts.
 
 **Graph memory.** An optional extra index for relationship memory: instead of
 only looking up facts ("you like concise answers"), it can also follow

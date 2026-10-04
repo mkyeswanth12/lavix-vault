@@ -112,7 +112,7 @@ What you should see: `{"status":"healthy",...}` and every service `Up`.
 docker compose exec api python -m app.cli promote-admin <username>
 ```
 
-What you should see: `ok: promoted user '<username>' ... to admin`.
+What you should see: `ok: promoted user '<username>' ... to admin with file delete permission`.
 
 3. As admin, open Settings and turn registration off (Admin Preferences >
    Public registration). Leave it on only if you want strangers to sign up.

@@ -20,7 +20,10 @@ Preferences > Public registration toggle. Leave it ON only while people sign
 up; turn it OFF afterwards (with it off, `/api/auth/register` returns 403).
 First user: register, then run
 `docker compose exec api python -m app.cli promote-admin <username>`
-(`ok: promoted user … to admin`), then disable registration.
+(`ok: promoted user … to admin with file delete permission`), then disable registration.
+Promotion also grants file deletion (denied by default for new accounts);
+re-running it for an already-admin account tops up a missing delete grant.
+To take deletion away again, toggle Delete off for that user in Permissions.
 
 ## Session timeout and passwords
 

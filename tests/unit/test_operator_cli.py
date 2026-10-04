@@ -49,12 +49,17 @@ def _patch_db(monkeypatch, row):
 def test_promote_admin_updates_one_user(monkeypatch, capsys):
     conn = _patch_db(
         monkeypatch,
-        {"id": 7, "username": "owner", "is_admin": False, "is_active": True},
+        {"id": 7, "username": "owner", "is_admin": False, "is_active": True, "perm_delete": False},
     )
     assert cli.main(["promote-admin", "owner"]) == 0
     assert conn.committed
-    assert any("UPDATE users SET is_admin" in sql for sql, _ in conn._cursor.statements)
-    assert "promoted" in capsys.readouterr().out
+    assert any(
+        "UPDATE users SET is_admin = TRUE, perm_delete = TRUE" in sql
+        for sql, _ in conn._cursor.statements
+    )
+    out = capsys.readouterr().out
+    assert "promoted" in out
+    assert "delete" in out
 
 
 def test_promote_admin_unknown_user_fails(monkeypatch, capsys):
@@ -66,11 +71,26 @@ def test_promote_admin_unknown_user_fails(monkeypatch, capsys):
 def test_promote_admin_already_admin_is_noop(monkeypatch, capsys):
     conn = _patch_db(
         monkeypatch,
-        {"id": 7, "username": "owner", "is_admin": True, "is_active": True},
+        {"id": 7, "username": "owner", "is_admin": True, "is_active": True, "perm_delete": True},
     )
     assert cli.main(["promote-admin", "owner"]) == 0
     assert not any("UPDATE" in sql for sql, _ in conn._cursor.statements)
     assert "already an admin" in capsys.readouterr().out
+
+
+def test_promote_admin_already_admin_backfills_missing_delete(monkeypatch, capsys):
+    conn = _patch_db(
+        monkeypatch,
+        {"id": 7, "username": "owner", "is_admin": True, "is_active": True, "perm_delete": False},
+    )
+    assert cli.main(["promote-admin", "owner"]) == 0
+    assert any(
+        "UPDATE users SET perm_delete = TRUE" in sql for sql, _ in conn._cursor.statements
+    )
+    assert not any("is_admin = TRUE" in sql for sql, _ in conn._cursor.statements)
+    out = capsys.readouterr().out
+    assert "already an admin" in out
+    assert "delete permission granted" in out
 
 
 def test_promote_admin_rejects_empty_username(monkeypatch):
@@ -81,7 +101,7 @@ def test_promote_admin_rejects_empty_username(monkeypatch):
 def test_promote_admin_rejects_deactivated_user(monkeypatch, capsys):
     _patch_db(
         monkeypatch,
-        {"id": 9, "username": "old", "is_admin": False, "is_active": False},
+        {"id": 9, "username": "old", "is_admin": False, "is_active": False, "perm_delete": False},
     )
     assert cli.main(["promote-admin", "old"]) == 1
     assert "deactivated" in capsys.readouterr().err

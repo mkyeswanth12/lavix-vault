@@ -44,7 +44,7 @@ Who this page is for: anyone looking something up. Tables, no prose.
 
 | Command | Purpose |
 |---|---|
-| `docker compose exec api python -m app.cli promote-admin <username>` | Make a user admin |
+| `docker compose exec api python -m app.cli promote-admin <username>` | Make a user admin and grant file deletion |
 | `docker compose run --rm api python -m app.cli reembed --model <n> --dimensions <d> [--dry-run]` | Migrate vectors (stop workers first) |
 | `docker compose run --rm migrate python -m app.db.migrate [up\|status\|verify]` | Migrations |
 | `python -m app.ingestion.worker [--factory MOD:fn] [--idle-seconds F]` | Ingestion worker |
