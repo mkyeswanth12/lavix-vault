@@ -14,8 +14,8 @@ dependencies are hash-pinned (`uv.lock`, `package-lock.json`).
 | `nginxinc/nginx-unprivileged` | BSD-2-Clause (nginx) | WebUI static server |
 | `pgvector/pgvector:pg15` | PostgreSQL License | Vector database |
 | `redis:7.4-alpine` | BSD-3-Clause (Redis, pre-relicense line) | Queue / cache |
-| `quay.io/minio/minio` + `minio/mc` | AGPL-3.0 | Object storage. Note: MinIO server is AGPL; using the official image unmodified over its S3 API does not impose AGPL on Lavix Vault itself, but redistributing a modified MinIO build would. |
-| `searxng/searxng` | AGPL-3.0 | Web search (same note as MinIO: used unmodified as a separate service) |
+| `pgsty/silo` (MinIO fork) | AGPL-3.0-or-later | Object storage. Silo is the maintained MinIO fork used after upstream MinIO withdrew its community images in 2026; using the image unmodified over its S3 API does not impose AGPL on Lavix Vault itself, but redistributing a modified build would. |
+| `searxng/searxng` | AGPL-3.0 | Web search (same note as Silo/MinIO: used unmodified as a separate service) |
 | `michaelf34/infinity` | MIT | Reranker server |
 | `neo4j:5-community` (optional profile) | GPL-3.0 (Community Edition) | Optional memory-graph projection, off by default |
 

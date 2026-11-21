@@ -9,8 +9,8 @@ Who this page is for: anyone looking something up. Tables, no prose.
 | preflight | busybox:1.37.0 | none | backend | none |
 | postgres | pgvector/pgvector:pg15 | none | backend | none |
 | redis | redis:7.4-alpine | none | backend | none |
-| minio | quay.io/minio/minio:RELEASE.2025-09-07 | none | backend | none |
-| minio-init | minio/mc:RELEASE.2025-08-13 | none | backend | one-shot |
+| minio | pgsty/silo:RELEASE.2026-11-12 (MinIO fork) | none | backend | none |
+| minio-init | pgsty/silo:RELEASE.2026-11-12 (MinIO fork) | none | backend | one-shot |
 | migrate | lavix-vault:1.0.0 | none | backend | one-shot |
 | api | lavix-vault:1.0.0 | 9999:8080 | frontend, backend, agent-tools | 4g, 2.0 CPU |
 | webui | lavix-vault-webui:1.0.0 | 3005:8080 | frontend | none |

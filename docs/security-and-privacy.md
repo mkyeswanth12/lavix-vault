@@ -43,7 +43,7 @@ code. Downloads use `no-store` headers; previews are sandboxed.
   MinIO dumps ([Operations](operations.md)).
 - Honest limits: this does not protect against a compromised host or Docker
   daemon (root there can read everything), weak passwords, or screenshots.
-  AGPL pieces (MinIO, SearXNG) are used unmodified as separate services.
+  AGPL pieces (Silo/MinIO, SearXNG) are used unmodified as separate services.
 - Indexed text and search vectors in Postgres are **not** application-encrypted
   (only access-controlled): use host full-disk encryption, and encrypted swap
   since RAM-backed temporary files can reach disk through host swapping.

@@ -1,5 +1,6 @@
 #!/bin/sh
-# Lavix Vault MinIO init (runs as the one-shot `minio-init` service).
+# Lavix Vault object-store init (runs as the one-shot `minio-init` service).
+# Targets Silo, the maintained MinIO fork; `mc` and the admin API are compatible.
 # Creates the private bucket and reconciles the restricted application
 # user/policy on every controlled startup. Reads all four credentials
 # from the environment. POSIX sh.

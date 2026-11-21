@@ -322,7 +322,7 @@ and `minio-init` run once per start and exit.
 | preflight | busybox:1.37.0 | none | backend |
 | postgres | pgvector/pgvector:pg15 | none | backend |
 | redis | redis:7.4-alpine | none | backend |
-| minio / minio-init | minio images | none | backend |
+| minio / minio-init | pgsty/silo (MinIO-compatible) | none | backend |
 | migrate | lavix-vault:1.0.0 | none | backend |
 | api | lavix-vault:1.0.0 | 9999:8080 | frontend, backend, agent-tools |
 | webui | lavix-vault-webui:1.0.0 | 3005:8080 | frontend |
